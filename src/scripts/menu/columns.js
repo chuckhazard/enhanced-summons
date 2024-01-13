@@ -1,3 +1,5 @@
+import { LOG } from "../util/logger"
+
 const formatCr = (item) => {
   let cr = item?.system?.details?.cr || "-"
   if (cr === 0.125) cr = "&frac18;"
@@ -19,7 +21,8 @@ const compareAttackRating = (a, b) => {
 
 export const columns = []
 Hooks.once("ready", () => {
-  let columnDefinition = foundrySummons.columnDefinition
+  let columnDefinition =
+    hfSummons.columnDefinition || foundrySummons.columnDefinition
   columns.push(columnDefinition("name", (creature) => creature.name))
   columns.push(
     columnDefinition("hp", (item) => item.system?.attributes?.hp?.value || "-")

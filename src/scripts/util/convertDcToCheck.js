@@ -100,9 +100,9 @@ const dcList = (...buttonValues) => {
   }
   dcDialog({ buttons, options: { showInput: true } })
 }
-window[hazardSummons] = window[hazardSummons] || {}
-window[hazardSummons] = {
-  ...(window[hazardSummons] || {}),
+window.hazardSummons = window.hazardSummons || {}
+window.hazardSummons = {
+  ...(window.hazardSummons || {}),
   dcBasic,
   dcList,
   dcToCheck,

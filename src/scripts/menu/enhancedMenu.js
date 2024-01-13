@@ -1,10 +1,7 @@
-console.log("importing enhanced menu")
 import { MODULE } from "../util/constants.js"
 import { LOG } from "../util/logger.js"
 import { conjuringFilterGroups, conjuringFilters } from "./filters.js"
 import { columns } from "./columns.js"
-
-console.log("importing enhanced menu")
 
 const calculateAttackData = (actor) => {
   let hit = maxToHit(actor)
@@ -87,7 +84,8 @@ const openMenu = () => {
     },
   }
 
-  foundrySummons.openMenu(foundrySummonOptions)
+  if (window.hfSummons) hfSummons.openMenu(foundrySummonOptions)
+  else foundrySummons.openMenu()
 }
 
 const getPackData = (lookup, uuid) => {
