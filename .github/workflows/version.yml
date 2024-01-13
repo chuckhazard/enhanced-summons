@@ -1,0 +1,43 @@
+name: Version Creation on Push
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build semantic version
+        id: semantic_version
+        uses: paulhatch/semantic-version@v5.3.0
+        with:
+          tag_prefix: "v"
+          major_pattern: "[major]"
+          minor_pattern: "[minor]"
+          enable_prerelease_mode: false
+          version_format: "${major}.${minor}.${patch}"
+          debug: false
+
+      - name: Create Tag
+        id: create_tag
+        run: |
+          CURRENT_VERSION="${{steps.semantic_version.outputs.version}}"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git tag -a "v${CURRENT_VERSION}" -m "Version ${CURRENT_VERSION}"
+          git push --tags
+
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: version-tagged
+          client-payload: '{"version": "${{ steps.semantic_version.outputs.version}}" }'

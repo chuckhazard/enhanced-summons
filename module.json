@@ -1,0 +1,45 @@
+{
+  "id": "enhanced-summons",
+  "title": "Enhanced Summons",
+  "description": "Enhance summoned creatures.",
+  "version": "0.0.0",
+  "esmodules": ["index.js"],
+  "manifest": "https://github.com/chuckhazard/enhanced-summons/releases/latest/download/module.json",
+  "download": "https://github.com/chuckhazard/enhanced-summons/releases/latest/download/module.zip",
+  "compatibility": {
+    "minimum": "11",
+    "verified": "11"
+  },
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "relationships": {
+    "requires": [
+      {
+        "id": "templatemacro",
+        "type": "module",
+        "manifest": "https://github.com/krbz999/templatemacro/releases/latest/download/module.json"
+      }
+    ],
+    "recommended": [
+      {
+        "id": "foundry-summons",
+        "type": "module",
+        "manifest": "https://github.com/MrVauxs/foundry-summons/releases/latest/download/module.json"
+      },
+      {
+        "id": "hazard-foundry-summons",
+        "type": "module",
+        "manifest": "https://github.com/chuckhazard/hazard-foundry-summons/releases/latest/download/module.json"
+      }
+    ]
+  },
+  "readme": "https://github.com/chuckhazard/enhanced-summons/blob/master/README.md",
+  "url": "https://github.com/chuckhazard/enhanced-summons",
+  "bugs": "https://github.com/chuckhazard/enhanced-summons/issues",
+  "changelog": "https://github.com/chuckhazard/enhanced-summons/releases/latest/"
+}
