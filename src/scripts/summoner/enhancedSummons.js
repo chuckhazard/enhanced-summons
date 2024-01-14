@@ -145,10 +145,10 @@ const healAlliesInAura = (actor) => {
   let doc = game.scenes.get(aura.sceneId)?.templates?.get(aura.templateId)
   if (!doc) return
   let actors = getActorsInTemplate(doc, isSummonOrAlly)
-  let healing = getSummonerLevel(actor)
+  let level = getSummonerLevel(actor)
   actors.forEach((actor) => {
     let hp = actor.system.attributes.hp
-    healing = Math.min(hp.max - hp.value, healing)
+    let healing = Math.min(hp.max - hp.value, level)
     LOG.info(`Aura healed ${actor.name} for ${healing}`)
     actor.update({
       system: { attributes: { hp: { value: hp.value + healing } } },
