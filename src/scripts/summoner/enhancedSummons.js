@@ -132,27 +132,39 @@ const cotsModifySummon = ({ updates, sourceData }) => {
  * @param {Array} actors token ids located within the aura
  * @param {Number} hp     amount of temorary HP to grant
  */
-const grantStrengthAuraTempHp = (actors, hp) => {
-  actors
-    .filter((actor) => !actor.system?.attributes?.hp.temp || 0 < hp)
-    .forEach((actor) => {
-      actor.update({ system: { attributes: { hp: { temp: hp } } } })
-    })
+const grantStrengthAuraTempHp = (tokens, hp) => {
+  tokens.forEach((token) => {
+    let updates = {
+      actor: { system: { attributes: { hp: { temp: hp } } } },
+    }
+    let options = {
+      description: `Strength aura grants ${token.actor.name} ${hp} temporary hp.`,
+    }
+
+    // eslint-disable-next-line no-undef
+    warpgate.mutate(token, updates, {}, options)
+  })
 }
 
 const healAlliesInAura = (actor) => {
   let aura = actor.flags[MODULE.flag].spiritAura
-  let doc = game.scenes.get(aura.sceneId)?.templates?.get(aura.templateId)
+  let scene = game.scenes.get(aura.sceneId)
+  let doc = scene?.templates?.get(aura.templateId)
   if (!doc) return
-  let actors = getActorsInTemplate(doc, isSummonOrAlly)
+  let tokens = getTokensInTemplate(scene, doc, isSummonOrAlly)
   let level = getSummonerLevel(actor)
-  actors.forEach((actor) => {
-    let hp = actor.system.attributes.hp
+  tokens.forEach((token) => {
+    let hp = token.actor.system.attributes.hp
     let healing = Math.min(hp.max - hp.value, level)
-    LOG.info(`Aura healed ${actor.name} for ${healing}`)
-    actor.update({
-      system: { attributes: { hp: { value: hp.value + healing } } },
-    })
+    let updates = {
+      actor: { system: { attributes: { hp: { value: hp.value + healing } } } },
+    }
+    let options = {
+      description: `Healing aura heals ${actor.name} for ${healing} hp.`,
+    }
+
+    // eslint-disable-next-line no-undef
+    warpgate.mutate(token, updates, {}, options)
   })
 }
 
@@ -264,8 +276,16 @@ const setupStrengthAura = (actor, auraTemplate) => {
   const callback = () => {
     try {
       Hooks.off("refreshMeasuredTemplate", callback)
-      let actors = getActorsInTemplate(auraTemplate, isSummonOrAlly)
-      grantStrengthAuraTempHp(actors, getSummonerLevel(actor) + 5)
+      let scene = game.scenes.get(auraTemplate.parent.id)
+      let tempHpGranted = getSummonerLevel(actor) + 5
+      let tokens = getTokensInTemplate(
+        scene,
+        auraTemplate,
+        (actor) =>
+          isSummonOrAlly(actor) &&
+          (actor.system?.attributes?.hp.temp ?? 0 < tempHpGranted)
+      )
+      grantStrengthAuraTempHp(tokens, getSummonerLevel(actor) + 5)
       // grantStrengthAuraAdvantage(actors)
     } catch (e) {
       console.log(`Error while checking contents of aura: ${e.message}`)
@@ -279,21 +299,14 @@ const isSummonOrAlly = (actor) => {
   return actor.flags[MODULE.id]?.summoned || actor.type == "character"
 }
 
-/** Return a list of all actors within the template
- *
- * @param {*} template
- * @returns
- */
-const getActorsInTemplate = (template, filter = () => true) => {
+const getTokensInTemplate = (scene, template, filter = () => true) => {
   const tokens = template.parent.tokens
-  let tokenIds = game.modules.get("templatemacro").api.findContained(template)
+  let tokenIds =
+    game.modules.get("templatemacro").api.findContained(template) || []
   LOG.debug(`Found ${tokenIds.length} tokens in aura ${template.id}`)
-  let actors = []
-  if (tokenIds)
-    tokenIds.forEach((id) => {
-      if (filter(tokens.get(id).actor)) actors.push(tokens.get(id).actor)
-    })
-  return actors
+  return tokenIds
+    .filter((id) => filter(tokens.get(id).actor))
+    .map((id) => scene.tokens.get(id))
 }
 
 Hooks.once("init", () => {
