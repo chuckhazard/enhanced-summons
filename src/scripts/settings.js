@@ -35,7 +35,7 @@ configs[auraRadius] = {
   scope: "world", // "world" = sync to db, "client" = local storage
   config: true, // false if you dont want it to show in module config
   type: Number, // Number, Boolean, String, or even a custom class or DataModel
-  default: 6,
+  default: 30,
   // range: {
   //   // range turns the UI input into a slider input
   //   min: 0, // but does not validate the value
