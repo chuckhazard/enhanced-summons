@@ -2,6 +2,8 @@ import { MODULE } from "./util/constants.js"
 import { LOG } from "./util/logger.js"
 
 const enhancedSummoner = "enhancedSummoner"
+const approveHealing = "approveHealing"
+const approveTempHp = "approveTempHp"
 const powerfulSummons = "powerfulSummons"
 const auraRadius = "auraRadius"
 
@@ -49,6 +51,30 @@ configs[auraRadius] = {
   requiresReload: false, // when changing the setting, prompt the user to reload
 }
 
+configs[approveHealing] = {
+  name: "Auto Heal in Aura", // can also be an i18n key
+  hint: "Trigger aura healing without prompting GM", // can also be an i18n key
+  scope: "world", // "world" = sync to db, "client" = local storage
+  config: true, // false if you dont want it to show in module config
+  type: Boolean, // Number, Boolean, String, or even a custom class or DataModel
+  default: true,
+  onChange: (value) => {
+    LOG.info(`Set Auto Heal to ${value}`)
+  },
+}
+
+configs[approveTempHp] = {
+  name: "Auto Apply Temp HP", // can also be an i18n key
+  hint: "Trigger aura temp HP without prompting GM", // can also be an i18n key
+  scope: "world", // "world" = sync to db, "client" = local storage
+  config: true, // false if you dont want it to show in module config
+  type: Boolean, // Number, Boolean, String, or even a custom class or DataModel
+  default: true,
+  onChange: (value) => {
+    LOG.info(`Set Auto Temp HP to ${value}`)
+  },
+}
+
 let enhancedSummonerTags = []
 let powerfulSummonsTags = []
 
@@ -56,6 +82,8 @@ export const CONFIG = {
   getEnhancedSummonerTags: () => enhancedSummonerTags,
   getPowerfulSummonsTags: () => powerfulSummonsTags,
   getAuraRadius: () => game.settings.get(MODULE.id, auraRadius),
+  getAutoHeal: () => game.settings.get(MODULE.id, approveHealing),
+  getAutoTempHp: () => game.settings.get(MODULE.id, approveTempHp),
 }
 
 const parseConfigs = () => {

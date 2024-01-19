@@ -139,6 +139,9 @@ const grantStrengthAuraTempHp = (tokens, hp) => {
     }
     let options = {
       description: `Strength aura grants ${token.actor.name} ${hp} temporary hp.`,
+      overrides: {
+        alwaysAccept: CONFIG.getAutoTempHp(),
+      },
     }
 
     // eslint-disable-next-line no-undef
@@ -161,6 +164,9 @@ const healAlliesInAura = (actor) => {
     }
     let options = {
       description: `Healing aura heals ${actor.name} for ${healing} hp.`,
+      overrides: {
+        alwaysAccept: CONFIG.getAutoHeal(),
+      },
     }
 
     // eslint-disable-next-line no-undef
