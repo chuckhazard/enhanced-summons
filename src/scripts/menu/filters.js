@@ -16,8 +16,23 @@ export const conjuringFilters = [
     },
   },
 ]
+const packFilter = { category: "Pack", filters: [] }
+export const addPackFilter = (name) => {
+  if (packFilter.filters.find((f) => f.name == name)) return
+  let filter = {
+    name,
+    function: (creature) => creature.pack == name,
+  }
+  packFilter.filters.push(filter)
+}
 
-export const conjuringFilterGroups = [
+export const getFilterGroups = () => {
+  if (packFilter.filters.length < 2)
+    return conjuringFilterGroups.filter((f) => f.category != "Pack")
+  return conjuringFilterGroups
+}
+
+const conjuringFilterGroups = [
   {
     category: "CR",
     filters: [
@@ -89,20 +104,54 @@ export const conjuringFilterGroups = [
       {
         name: "Darkvision",
         function: (creature) => creature?.system?.attributes?.senses.darkvision,
+        disabled: true,
       },
       {
         name: "Blindsight",
         function: (creature) => creature?.system?.attributes?.senses.blindsight,
+        disabled: true,
       },
       {
         name: "Tremorsense",
         function: (creature) =>
           creature?.system?.attributes?.senses.tremorsense,
+        disabled: true,
       },
       {
         name: "Truesight",
         function: (creature) => creature?.system?.attributes?.senses.truesight,
+        disabled: true,
       },
     ],
   },
+  {
+    category: "Size",
+    filters: [
+      {
+        name: "Tiny",
+        function: (creature) => "tiny" == creature?.system?.traits?.size,
+      },
+      {
+        name: "Small",
+        function: (creature) => "sm" == creature?.system?.traits?.size,
+      },
+      {
+        name: "Medium",
+        function: (creature) => "med" == creature?.system?.traits?.size,
+      },
+      {
+        name: "Large",
+        function: (creature) => "lg" == creature?.system?.traits?.size,
+      },
+      {
+        name: "Huge",
+        function: (creature) => "huge" == creature?.system?.traits?.size,
+      },
+      {
+        name: "Gargantuan",
+        function: (creature) => "grg" == creature?.system?.traits?.size,
+      },
+    ],
+  },
+  packFilter,
 ]

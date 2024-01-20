@@ -1,7 +1,35 @@
 import { MODULE } from "../util/constants.js"
 import { LOG } from "../util/logger.js"
-import { conjuringFilterGroups, conjuringFilters } from "./filters.js"
+import { getFilterGroups, conjuringFilters } from "./filters.js"
 import { columns } from "./columns.js"
+import { addPackFilter } from "./filters.js"
+
+const indexFields = [
+  "pack",
+  "items.labels",
+  "system.attributes.ac.armor",
+  "system.attributes.hp.value",
+  "system.attributes.movement",
+  "system.attributes.senses",
+  "system.traits.size",
+]
+
+// TODO handle array
+let copyPath = (path, to, from) => {
+  const parts = path.split(".")
+  let ptr = to
+  let i
+  if (!to) to = {}
+  for (i = 0; i < parts.length - 1; i++) {
+    let key = parts[i]
+    if (!ptr[key]) ptr[key] = {}
+    if (from[key]) from = from[key]
+    else return to
+    ptr = ptr[key]
+  }
+  ptr[parts[i]] = from[parts[i]]
+  return to
+}
 
 const calculateAttackData = (actor) => {
   let hit = maxToHit(actor)
@@ -73,15 +101,16 @@ const maxToHit = (actor) => {
     - Swarm creatures are never shown, as they are not eligible for group
       conjure despite carrying the beast type.
  */
-const openMenu = () => {
+const openMenu = (options) => {
   const foundrySummonOptions = {
     filters: conjuringFilters,
-    filterGroups: conjuringFilterGroups,
+    filterGroups: getFilterGroups(),
     columns: columns,
     options: {
       defaultFilters: false,
       defaultSorting: false,
     },
+    ...options,
   }
 
   if (window.hfSummons) hfSummons.openMenu(foundrySummonOptions)
@@ -113,6 +142,26 @@ Hooks.once("ready", () => {
       } else LOG.error(`Missing pack data for ${entry.id}`)
     }
   })
+})
+
+const extendIndex = async (index) => {
+  for (const entry of index) {
+    const actor = await entry.loadDocument()
+    const { hit, dmg, rating } = calculateAttackData(actor)
+    entry.atkRating = rating
+    entry.atkHit = hit
+    entry.atkDmg = dmg
+
+    addPackFilter(actor.pack)
+
+    for (const field of indexFields) {
+      copyPath(field, entry, actor)
+    }
+  }
+}
+
+Hooks.once("ready", () => {
+  Hooks.on("fs-loadingPacks", extendIndex)
 })
 
 window[MODULE.window] = window[MODULE.window] || {}

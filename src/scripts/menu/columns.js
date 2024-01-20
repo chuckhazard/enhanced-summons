@@ -19,17 +19,28 @@ const compareAttackRating = (a, b) => {
   return b.atkRating - a.atkRating
 }
 
+const formatSize = (c) => {
+  let size = c.system.traits.size
+  if (size == "sm") return "s"
+  if (size == "med") return "m"
+  if (size == "tiny") return "t"
+  if (size == "lg") return "L"
+  if (size == "huge") return "H"
+  return size
+}
+
 export const columns = []
 Hooks.once("ready", () => {
   let columnDefinition =
     hfSummons.columnDefinition || foundrySummons.columnDefinition
-  columns.push(columnDefinition("name", (creature) => creature.name))
+  columns.push(columnDefinition("Name", (creature) => creature.name))
+  columns.push(columnDefinition("Size", formatSize))
   columns.push(
     columnDefinition("hp", (item) => item.system?.attributes?.hp?.value || "-")
   )
   columns.push(
     columnDefinition(
-      "Rating",
+      "Val",
       (creature) => creature.atkRating || "-",
       compareAttackRating
     )
