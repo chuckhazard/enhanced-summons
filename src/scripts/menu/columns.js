@@ -19,13 +19,25 @@ const compareAttackRating = (a, b) => {
   return b.atkRating - a.atkRating
 }
 
+const sizeOrder = { tiny: 0, sm: 1, med: 2, lg: 3, huge: 4, grg: 5 }
+const compareSize = (a, b) => {
+  let ai = a?.system?.traits?.size
+  let bi = b?.system?.traits?.size
+  if (!ai || sizeOrder[ai] === undefined || !bi || sizeOrder[bi] === undefined)
+    return 0
+  return sizeOrder[ai] - sizeOrder[bi]
+}
+
 const formatSize = (c) => {
-  let size = c.system.traits.size
-  if (size == "sm") return "s"
+  let size = c?.system?.traits?.size
+  if (size === undefined) console.log("error: undefined size; " + c.name)
+
   if (size == "med") return "m"
+  if (size == "sm") return "s"
   if (size == "tiny") return "t"
   if (size == "lg") return "L"
   if (size == "huge") return "H"
+  if (size == "grg") return "G"
   return size
 }
 
@@ -34,7 +46,7 @@ Hooks.once("ready", () => {
   let columnDefinition =
     hfSummons.columnDefinition || foundrySummons.columnDefinition
   columns.push(columnDefinition("Name", (creature) => creature.name))
-  columns.push(columnDefinition("Size", formatSize))
+  columns.push(columnDefinition("Size", formatSize, compareSize))
   columns.push(
     columnDefinition("hp", (item) => item.system?.attributes?.hp?.value || "-")
   )
